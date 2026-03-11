@@ -1,0 +1,8 @@
+package com.sis5.SIS5.exception;
+
+public class EmailAlreadyExistsException extends RuntimeException {
+
+    public EmailAlreadyExistsException(String message) {
+        super(message);
+    }
+}
