@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: feed-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/social_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: feed_schema
+    show-sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    schemas: feed_schema
+    default-schema: feed_schema
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: feed-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: postCreatedEvent:com.example.feedservice.event.PostCreatedEvent
+
+server:
+  port: 8082
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
