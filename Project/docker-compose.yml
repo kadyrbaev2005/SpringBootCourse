@@ -1,0 +1,50 @@
+services:
+  db-postgres:
+    image: postgres:16-alpine
+    container_name: medieval-db-postgres
+    environment:
+      POSTGRES_DB: taxdb
+      POSTGRES_USER: taxuser
+      POSTGRES_PASSWORD: taxpass
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taxuser -d taxdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  oracle-service:
+    build:
+      context: ./oracle-service
+      dockerfile: Dockerfile
+    container_name: medieval-oracle-service
+    ports:
+      - "8081:8081"
+
+  tax-collector-service:
+    build:
+      context: ./tax-collector-service
+      dockerfile: Dockerfile
+    container_name: medieval-tax-collector-service
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db-postgres
+      DB_PORT: 5432
+      DB_NAME: taxdb
+      DB_USER: taxuser
+      DB_PASSWORD: taxpass
+      ORACLE_SERVICE_URL: http://oracle-service:8081
+      JWT_SECRET: medieval-tax-collector-docker-compose-secret-use-long-random-string-in-real-deployments
+    depends_on:
+      db-postgres:
+        condition: service_healthy
+      oracle-service:
+        condition: service_started
+
+volumes:
+  postgres_data:
