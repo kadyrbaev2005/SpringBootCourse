@@ -99,9 +99,6 @@ public class TaxService {
         };
     }
 
-    /**
-     * Weather nudges tithe pressure: storms complicate harvest accounting and embolden collectors.
-     */
     private static BigDecimal weatherTaxAdjustment(Weather weather) {
         if (weather == null) {
             return BigDecimal.ONE;
