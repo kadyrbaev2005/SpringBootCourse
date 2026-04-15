@@ -39,7 +39,7 @@ services:
       DB_USER: taxuser
       DB_PASSWORD: taxpass
       ORACLE_SERVICE_URL: http://oracle-service:8081
-      JWT_SECRET: medieval-tax-collector-docker-compose-secret-use-long-random-string-in-real-deployments
+      JWT_SECRET: medieval-tax-collector-dev-secret-key-akzhol-the-best
     depends_on:
       db-postgres:
         condition: service_healthy
