@@ -24,6 +24,9 @@ services:
     container_name: medieval-oracle-service
     ports:
       - "8081:8081"
+    environment:
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+      GOLD_API_KEY: ${GOLD_API_KEY}
 
   tax-collector-service:
     build:

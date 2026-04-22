@@ -4,3 +4,13 @@ server:
 spring:
   application:
     name: oracle-service
+
+openweather:
+  service:
+    url: http://api.openweathermap.org/
+  api-key: ${WEATHER_API_KEY}
+
+goldapi:
+  service:
+    url: https://www.goldapi.io/api/XAU/USD
+  api-key: ${GOLD_API_KEY}

@@ -28,12 +28,12 @@ spring:
   cloud:
     openfeign:
       circuitbreaker:
-        enabled: true
+        enabled: false
       client:
         config:
           default:
-            connectTimeout: 2000
-            readTimeout: 3000
+            connectTimeout: 5000
+            readTimeout: 10000
 
 oracle:
   service:
@@ -41,7 +41,7 @@ oracle:
 
 feign:
   circuitbreaker:
-    enabled: true
+    enabled: false
 
 resilience4j:
   circuitbreaker:

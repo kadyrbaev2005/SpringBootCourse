@@ -13,7 +13,7 @@ public class OracleClientFallback implements OracleClient {
         OracleFallbackContext.markFallbackUsed();
         return OracleStatusDto.builder()
                 .kingMood(KingMood.NEUTRAL)
-                .weather(Weather.SUNNY)
+                .weather(Weather.CLEAR)
                 .build();
     }
 }

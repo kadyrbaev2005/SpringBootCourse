@@ -1,7 +1,11 @@
 package com.medieval.oracle.domain;
 
 public enum Weather {
-    SUNNY,
-    RAINY,
-    STORM
+    THUNDERSTORM,
+    DRIZZLE,
+    RAIN,
+    SNOW,
+    ATMOSPHERE,
+    CLEAR,
+    CLOUDS
 }

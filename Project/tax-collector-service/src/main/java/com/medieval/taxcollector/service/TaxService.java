@@ -104,9 +104,13 @@ public class TaxService {
             return BigDecimal.ONE;
         }
         return switch (weather) {
-            case SUNNY -> BigDecimal.ONE;
-            case RAINY -> new BigDecimal("1.05");
-            case STORM -> new BigDecimal("1.10");
+            case THUNDERSTORM -> new BigDecimal("2.00");
+            case DRIZZLE -> new BigDecimal("1.80");
+            case RAIN -> new BigDecimal("1.60");
+            case SNOW -> new BigDecimal("1.40");
+            case ATMOSPHERE -> new BigDecimal("1.20");
+            case CLOUDS -> new BigDecimal("1.00");
+            case CLEAR -> new BigDecimal("0.8");
         };
     }
 
@@ -119,7 +123,7 @@ public class TaxService {
         if (burdenRatio.compareTo(HIGH_BURDEN_RATIO) > 0) {
             risk = risk.add(REVOLT_SPIKE);
         }
-        if (weather == Weather.STORM) {
+        if (weather == Weather.THUNDERSTORM) {
             risk = risk.add(STORM_REVOLT_TICK);
         }
         if (risk.compareTo(HUNDRED) > 0) {
