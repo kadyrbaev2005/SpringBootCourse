@@ -2,12 +2,9 @@ package com.medieval.taxcollector.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.crypto.SecretKey;
@@ -27,36 +24,22 @@ public class JwtProvider {
     public JwtProvider(
             @Value("${app.jwt.secret}") String secret,
             @Value("${app.jwt.expiration-ms}") long expirationMs) {
-        byte[] keyBytes = resolveKeyBytes(secret);
-        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
-    }
-
-    private static byte[] resolveKeyBytes(String secret) {
-        String trimmed = secret.trim();
-        if (trimmed.startsWith("base64:")) {
-            return Decoders.BASE64.decode(trimmed.substring("base64:".length()));
-        }
-        return trimmed.getBytes(StandardCharsets.UTF_8);
     }
 
     public long getExpirationMs() {
         return expirationMs;
     }
 
-    public String generateToken(Authentication authentication) {
-        Instant now = Instant.now();
-        Instant exp = now.plusMillis(expirationMs);
-        List<String> roles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .map(a -> a.startsWith("ROLE_") ? a.substring("ROLE_".length()) : a)
-                .toList();
-
+    public String generateToken(String username, List<String> roles) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + expirationMs);
         return Jwts.builder()
-                .subject(authentication.getName())
+                .subject(username)
                 .claim("roles", roles)
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(exp))
+                .issuedAt(now)
+                .expiration(exp)
                 .signWith(secretKey)
                 .compact();
     }
@@ -71,27 +54,24 @@ public class JwtProvider {
     }
 
     public Authentication toAuthentication(String token) {
-        Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
-        String username = claims.getSubject();
-        Collection<GrantedAuthority> authorities = extractAuthorities(claims);
-        return new UsernamePasswordAuthenticationToken(username, null, authorities);
-    }
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
 
-    @SuppressWarnings("unchecked")
-    private static Collection<GrantedAuthority> extractAuthorities(Claims claims) {
-        Object raw = claims.get("roles");
-        List<GrantedAuthority> out = new ArrayList<>();
-        if (raw instanceof List<?> list) {
-            for (Object o : list) {
-                if (o != null) {
-                    String r = o.toString();
-                    if (!r.startsWith("ROLE_")) {
-                        r = "ROLE_" + r;
-                    }
-                    out.add(new SimpleGrantedAuthority(r));
-                }
-            }
+        String username = claims.getSubject();
+
+        List<String> roles = claims.get("roles", List.class);
+        if (roles == null) {
+            roles = new ArrayList<>();
         }
-        return out;
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (String role : roles) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+        }
+
+        return new UsernamePasswordAuthenticationToken(username, null, authorities);
     }
 }
